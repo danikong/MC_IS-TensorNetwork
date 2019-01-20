@@ -4,7 +4,7 @@ flg = -Wall -Wextra -g #-std=gnu++11 # -Ofast -march=native
 class_dir = class/
 mainfile = nettf
 
-h_files = tensor randomGen
+h_files = tensor network randomGen statMod
 cpp_files := $(h_files)
 
 dir := ./$(class_dir)
@@ -17,11 +17,14 @@ output: $(mainfile).o $(cpp_all:.cpp=.o) $(h_all) $(cpp_all)
 $(mainfile).o: $(mainfile).cpp $(cpp_all)
 	$(CC) $(flg) -c $(mainfile).cpp -o $(mainfile).o
 
+$(dir)statMod.o: $(h_all) $(cpp_all)
+	$(CC) $(flg) -c $(join $(dir), statMod.cpp) -o $(dir)statMod.o
+
+$(dir)network.o: $(h_all) $(cpp_all)
+	$(CC) $(flg) -c $(join $(dir), network.cpp) -o $(dir)network.o
+
 $(dir)tensor.o: $(h_all) $(cpp_all)
 	$(CC) $(flg) -c $(join $(dir), tensor.cpp) -o $(dir)tensor.o
 
 $(dir)randomGen.o: $(h_all) $(cpp_all)
 	$(CC) $(flg) -c $(join $(dir), randomGen.cpp) -o $(dir)randomGen.o
-
-clear:
-	rm *.o $(mainfile)

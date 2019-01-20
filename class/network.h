@@ -13,14 +13,14 @@
 #include <complex>
 #include <algorithm>
 #include "./tensor.h"
-#include "./randomGen.h"
+// #include "./randomGen.h"
 
 // variables
 
 // functions
 struct TensorNet {
-        std::vector<Tensor*> tensors;
-        std::vector<std::vector<size_t> > network;
+        std::vector<Tensor> tensors;
+        std::vector< std::vector<size_t> > network;
         size_t nbrTensors;
         size_t nbrIndices;
 
@@ -28,17 +28,21 @@ struct TensorNet {
         std::vector<size_t> maxID;
 
         TensorNet();
-        TensorNet(const TensorNet &);
-        TensorNet(size_t nbrT, size_t nbrI, unsigned int **Tnet, std::vector<Tensor*> tens);
+        // TensorNet(const TensorNet &);
+        TensorNet(std::vector< std::vector<size_t> > Tnet, std::vector<Tensor> tens);
+        // TensorNet(size_t nbrT, size_t nbrI, std::vector<std::vector<size_t> > Tnet, std::vector<Tensor> tens);
         ~TensorNet();
 
-        void setTnet(size_t nbrT, size_t nbrI, unsigned int **Tnet);
-        void setTlist(std::vector<Tensor*> tens);
-        unsigned int getNetwork(size_t tens, size_t ind);
+        void setTnet(std::vector<std::vector<size_t> > Tnet);
+        void setTlist(std::vector<Tensor> tens);
+        size_t getNetwork(size_t tens, size_t ind);
 
         void genMaxID();
         std::complex<double> calcVal();
-        std::complex<double> sampleTNet(int* tensor_order, int* choose_uni, size_t size_choose_uni);
+        std::complex<double> sampleTNet(std::vector<size_t> drawingOrder, std::vector<size_t> fromWhichTensor,
+                                        std::vector<char> drawingType, std::vector<size_t> tracingID);
+        // std::complex<double> sampleTNet(std::vector<size_t> drawingOrder, std::vector<size_t> fromWhichTensor,
+        // std::vector<char> drawingType, std::vector<size_t> tracingID(nbrIndices, 0));
 };
 
 

@@ -102,4 +102,16 @@ int main() {
                 std::cout << t1.traceDist.at(2).at(1).at(7).at(i) << '\n';
         }
 
+
+        std::cout << "compDist:" << '\n';
+        std::cout << t1.compDist.size() << '\n';
+        for (size_t i = 0; i < t1.compDist.size(); i++) {
+                std::cout << "  "<< t1.compDist.at(i).size() << '\n';
+                for (size_t j = 0; j < t1.compDist.at(i).size(); j++) {
+                        std::cout << t1.compDist.at(i).at(j).size() << "-";
+                }
+                std::cout << '\n';
+        }
+        // std::cout << t1.compDist.at(0).size() << '\n';
+
 }

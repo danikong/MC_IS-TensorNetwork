@@ -222,6 +222,7 @@ void Tensor::printDimSize() {
 // ################### HANDLING OF DISTRIBUTIONS ###################
 // #################################################################
 
+// do I still use this function ??????????? NOPE
 size_t Tensor::distNbr(std::vector<size_t> samplingIdx) {
         size_t nbr = 0;
         for (size_t i = 0; i < dimension; i++) {
