@@ -14,6 +14,7 @@
 #include <vector>
 #include <random>
 #include <complex>
+#include <bitset>
 #include "./randomGen.h"
 
 

@@ -24,6 +24,9 @@ nettf: nettf.cpp $(h_all) $(cpp_all)
 # test_net: test_net.cpp $(h_all) $(cpp_all)
 # 	make -f Makefile.test_net
 
+empty: empty.cpp $(h_all) $(cpp_all)
+	make -f Makefile.empty
+
 
 clear:
 	rm *.o $(gen_files) ./class/*.o *.out

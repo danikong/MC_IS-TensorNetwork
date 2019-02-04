@@ -1,0 +1,16 @@
+CC = g++
+flg = -Wall -Wextra -g #-std=gnu++11 # -Ofast -march=native
+
+class_dir = class/
+mainfile = empty
+
+
+output: $(mainfile).o
+	$(CC) $(flg) $(mainfile).o -o $(mainfile).out
+
+$(mainfile).o: $(mainfile).cpp $(cpp_all)
+	$(CC) $(flg) -c $(mainfile).cpp -o $(mainfile).o
+
+
+clear:
+	rm *.o $(mainfile)

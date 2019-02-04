@@ -116,25 +116,35 @@ std::complex<double> TensorNet::calcVal() {
 std::complex<double> TensorNet::sampleTNet(std::vector<size_t> drawingOrder, std::vector<size_t> fromWhichTensor,
                                            std::vector<char> drawingType, std::vector<size_t> tracingID) {
         std::vector<size_t> idx(nbrIndices, 0);
-        std::vector<size_t> weight(nbrTensors, 1);
+        std::vector<double> weight(nbrTensors, 1);
 
         std::vector<size_t> sampleIDnext;
-        size_t nbrOfDrawings = *std::max_element(drawingOrder.begin(), drawingOrder.end());
-        for (size_t i = 0; i < nbrOfDrawings; i++) {
+        size_t sampleTID = 0;
+        size_t MaxNbrOfDrawings = *std::max_element(drawingOrder.begin(), drawingOrder.end());
+        // std::cout << "MaxNbrOfDrawings:  " << MaxNbrOfDrawings << '\n';
+        for (size_t i = 0; i <= MaxNbrOfDrawings; i++) {
 
+                // std::cout << '\n';
+                // std::cout << '\n';
+                // std::cout << "sampleIDnext: ";
                 for (size_t j = 0; j < nbrIndices; j++) {
                         if (drawingOrder.at(j) == i) {
+                                // std::cout << j << " ";
                                 sampleIDnext.push_back(j);
                         }
                 }
+                // std::cout << '\n';
+
                 if (drawingType.at(sampleIDnext.at(0)) == 'u') {    // uniform drawing; weight doesn't has to be set
-                        idx.at(i) = tensors.at(fromWhichTensor.at(i)).getUniDistIndex(network.at(fromWhichTensor.at(i)).at(i)-1);
+                        sampleTID = fromWhichTensor.at(sampleIDnext.at(0));
+                        idx.at(sampleIDnext.at(0)) = tensors.at(sampleTID).getUniDistIndex(network.at(sampleTID).at(sampleIDnext.at(0))-1);
 
                 } else if (drawingType.at(sampleIDnext.at(0)) == 't') {  // tracing
                         //  assume that sampleIDnext.size()  == 1
-                        size_t sampleTID = fromWhichTensor.at(sampleIDnext.at(0));
+                        sampleTID = fromWhichTensor.at(sampleIDnext.at(0));
                         size_t sampleID = network.at(sampleTID).at(sampleIDnext.at(0))-1;
                         size_t sumID = network.at(sampleTID).at(tracingID.at(sampleIDnext.at(0)))-1;
+                        // std::cout << sampleTID << ", " << sampleID << ", " << sumID << '\n';
 
                         // generate indices vector for tensor
                         std::vector<size_t> idxTen(tensors.at(sampleTID).dimension, 0);
@@ -144,20 +154,36 @@ std::complex<double> TensorNet::sampleTNet(std::vector<size_t> drawingOrder, std
                                 }
                         }
 
+                        // printVector(idxTen);
+                        // std::cout << '\n';
+
                         tensors.at(sampleTID).getISampIndexTrace(sampleID, sumID, &idxTen);
+
+                        // printVector(idxTen);
+                        // std::cout << '\n';
+
                         idx.at(sampleIDnext.at(0)) = idxTen.at(sampleID);
                         weight.at(sampleTID) *= tensors.at(sampleTID).getISampProbTrace(sampleID, sumID, idxTen);
-                        weight.at(sampleTID) *= tensors.at(sampleTID).DimSize.at(network.at(sampleTID).at(sampleID)-1);
+
+                        // printVector(idx);
+                        // std::cout << '\n';
+                        // printVector(weight);
+                        // std::cout << '\n';
+                        // std::cout << sampleTID << ", " << sampleID << ", " << sampleIDnext.at(0) << '\n';
+                        // std::cout << network.at(sampleTID).at(sampleIDnext.at(0))-1 << '\n';
+
+                        weight.at(sampleTID) *= tensors.at(sampleTID).DimSize.at(network.at(sampleTID).at(sampleIDnext.at(0))-1);
 
                 } else if (drawingType.at(sampleIDnext.at(0)) == 'c') {  // compound drawing
                         //  assume that fromWhichTensor is the same for all idx in sampleIDnext
-                        size_t sampleTID = fromWhichTensor.at(sampleIDnext.at(0));
+                        sampleTID = fromWhichTensor.at(sampleIDnext.at(0));
 
                         // generate number for combound distribution
                         size_t dist = 0b0;
                         for (size_t j = 0; j < sampleIDnext.size(); j++) {
-                                dist += (0b1 << (network.at(sampleTID).at(j)-1));
+                                dist += (0b1 << (network.at(sampleTID).at(sampleIDnext.at(j))-1));
                         }
+                        dist -= 0b1;
 
                         // generate indices vector for tensor
                         std::vector<size_t> idxTen(tensors.at(sampleTID).dimension, 0);
@@ -168,17 +194,24 @@ std::complex<double> TensorNet::sampleTNet(std::vector<size_t> drawingOrder, std
                         }
 
                         tensors.at(sampleTID).getISampIndexComp(dist, &idxTen);
+
                         for (size_t j = 0; j < sampleIDnext.size(); j++) {
                                 idx.at(sampleIDnext.at(j)) = idxTen.at(network.at(sampleTID).at(sampleIDnext.at(j))-1);
                                 weight.at(sampleTID) *= tensors.at(sampleTID).DimSize.at(network.at(sampleTID).at(sampleIDnext.at(j))-1);
                         }
-                        for (size_t j = 0; j < sampleIDnext.size(); j++) {
-                                weight.at(sampleTID) *= tensors.at(sampleTID).getISampProbComp(dist, idxTen);
-                        }
+                        weight.at(sampleTID) *= tensors.at(sampleTID).getISampProbComp(dist, idxTen);
                 }
                 sampleIDnext.clear();
-                printVector(idx);
+                // printVector(idx);
+                // std::cout << "\n\n";
         }
+
+        // std::cout << "\n\nWeights: ";
+        // printVector(weight);
+        // std::cout << '\n';
+        // std::cout << "idx: ";
+        // printVector(idx);
+        // std::cout << "\n\n";
 
         // calculating value for sampled indices
         std::complex<double> T_part = 1;

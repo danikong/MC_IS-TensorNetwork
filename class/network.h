@@ -12,6 +12,7 @@
 #include <random>
 #include <complex>
 #include <algorithm>
+#include <bitset>
 #include "./tensor.h"
 // #include "./randomGen.h"
 

@@ -1,5 +1,5 @@
 // Copyright 2018 BDan
-#include "./tensor.h"
+#include "./distr.h"
 
 
 void printVector(std::vector<auto> v) {
@@ -10,226 +10,34 @@ void printVector(std::vector<auto> v) {
         std::cout << "}";
 }
 
-// ################################################################
-// ################### GENERAL TENSOR FUNCTIONS ###################
-// ################################################################
-
-Tensor::Tensor() {
+Distribution::Distribution(char distType, size_t distNbr, size_t size) {
+        type = distType;
+        samplingIdx = distNbr;
+        dist.resize(size, 0);
 }
 
 
-Tensor::Tensor(std::string identifier, bool isCC) {
-        identification = identifier;
-        isComplexConj = isCC;
-        dimension = 0;
+Distribution::~Distribution() {
 }
 
 
-Tensor::Tensor(std::string identifier, std::string fn, int dim, bool isCC) {
-        isComplexConj = isCC;
-        identification = identifier;
-        file2tensor(fn, dim);
-}
 
 
-Tensor::~Tensor() {
-}
 
-
-void Tensor::setDimProbaties(int dim, std::vector<size_t> DSize) {
-        setDimension(dim);
-        setDimSize(DSize);
-
-        nbrEntries = 1;
-        for (size_t j = 0; j < dimension; j++) {
-                nbrEntries *= DimSize[j];
-        }
-
-        Tens.resize(nbrEntries);
-        std::fill(Tens.begin(), Tens.end(), 0);
-
-        idx_order.resize(dimension);
-        w_samplingIdx.resize(dimension);
-        for (size_t i = 0; i < dimension; i++) {
-                idx_order.at(i) = new int[dimension];
-                idx_order.at(i)[0] = i;
-                w_samplingIdx.at(i) = std::pow(2, i);
-                for (size_t j = 1; j < dimension; j++) {
-                        idx_order.at(i)[j] = (j <= i ? j-1 : j);
-                }
-        }
-
-        // setting size for compound distributions
-        compDist.resize(std::pow(2, dimension)-1);
-        int idx = 0;
-        for (size_t i = 0; i < compDist.size(); i++) {
-                int nbrOfDist = 1;
-                idx += 0b1;
-                for (size_t j = 0; j < dimension; j++) {
-                        if ( ((idx) & (0b1 << j)) == 0b0 ) {
-                                nbrOfDist *= DimSize.at(j);
-                        }
-                }
-                compDist.at(i).resize(nbrOfDist);
-        }
-        idx = 0;
-        for (size_t i = 0; i < compDist.size(); i++) {
-                idx += 0b1;
-                // std::cout << "i: " << i << "   nbrOfDist: " << compDist.at(i).size() << '\n';
-                for (size_t j = 0; j < compDist.at(i).size(); j++) {
-                        int distSize = 1;
-                        for (size_t d = 0; d < dimension; d++) {
-                                if ( ((idx) & (0b1 << d)) != 0b0 ) {
-                                        distSize *= DimSize.at(d);
-                                }
-                        }
-                        compDist.at(i).at(j).resize(distSize);
-                        // std::cout << "   j: " << j << "   distSize: " << compDist.at(i).at(j).size() << '\n';
-                }
-        }
-
-
-        // setting size for trace distributions
-        traceDist.resize(dimension);
-        for (size_t i = 0; i < traceDist.size(); i++) {
-                traceDist.at(i).resize(dimension-1);
-                for (size_t j = 0; j < traceDist.at(i).size(); j++) {
-                        size_t j_real = j + (j >= i ? 1 : 0);
-                        traceDist.at(i).at(j).resize(nbrEntries/DimSize.at(i)/DimSize.at(j_real));
-                        for (size_t k = 0; k < traceDist.at(i).at(j).size(); k++) {
-                                traceDist.at(i).at(j).at(k).resize(DimSize.at(i));
-                                std::fill(traceDist.at(i).at(j).at(k).begin(), traceDist.at(i).at(j).at(k).end(), 0);
-                        }
-                }
-        }
-}
-
-void Tensor::setDimension(int dim) {
-        dimension = dim;
-        // spDist.resize(dimension);
-}
-
-void Tensor::setDimSize(std::vector<size_t> DSize) {
-        DimSize.resize(dimension);
-
-        uniInt.resize(dimension);
-        for (size_t i = 0; i < dimension; i++) {
-                DimSize[i] = DSize[i];
-                uniInt.at(i) = new std::uniform_int_distribution<int>(0, DimSize[i]-1);
-        }
-}
-
-
-void Tensor::file2tensor(std::string fn, size_t dim) {
-        filename = fn;
-        std::ifstream in;
-        in.open(filename.c_str());
-        if (!in.is_open()) {
-                std::cout << "READ went wrong!!!" << "\n";
-                return;
-        }
-
-        if (!in) {
-                std::cout << "Cannot open file.\n";
-                return;
-        }
-
-        std::string line;
-        getline(in, line);
-
-        std::vector<size_t> DimensionSize;
-        int TempDim;
-        for (size_t i = 0; i < dim; i++) {
-                in >> TempDim;
-                DimensionSize.push_back(TempDim);
-        }
-        setDimProbaties(dim, DimensionSize);
-
-        // std::cout << "{" << DimSize[0] << "," << DimSize[1] << "," << DimSize[2] <<"}" << '\n';
-
-        getline(in, line);
-        getline(in, line);
-
-        //================ read in Tensor ================
-        int idx;
-        double x_val, y_val;
-        for (size_t i = 0; i < nbrEntries; i++) {
-                std::vector<size_t> index;
-                in >> x_val >> y_val;
-                for (size_t j = 0; j < dimension; j++) {
-                        in >> idx;
-                        index.push_back(idx-1);
-                }
-                if (isComplexConj) y_val *= -1;
-                set(index, std::complex<double>(1.0*x_val + 1.0i*y_val) );
-                // std::cout << "{" << index.at(0) << "," << index.at(1) << "," << index.at(2) <<"}" << '\n';
-        }
-        in.close();
-        //================================================
-
-        genCompDist();
-        genTraceDist();
-}
-
-void Tensor::set(std::vector<size_t> idx, std::complex<double> val) {
-        Tens[Ten2Arr(idx)] = val;
-}
-
-void Tensor::set(int pos, std::complex<double> val) {
-        Tens[pos] = val;
-}
-
-
-std::complex<double> Tensor::get(std::vector<size_t> idx) {
-        return Tens[Ten2Arr(idx)];
-}
-
-std::complex<double> Tensor::get(int pos) {
-        return Tens[pos];
-}
-
-int Tensor::Ten2Arr(std::vector<size_t> idx) {
-        int pos = 0;
-        int shift = 1;
-
-        for (size_t i = 0; i < dimension; i++) {
-                pos += shift*idx.at(i);
-                shift *= DimSize.at(i);
-        }
-
-        return pos;
-}
-
-std::vector<size_t> Tensor::Arr2Ten(int pos) {
-        std::vector<size_t> idx;
-        int mod = 1;
-        for (size_t i = 0; i < dimension; i++) {
-                idx.push_back((pos%(mod*DimSize.at(i))-pos%mod)/mod);
-                mod *= DimSize.at(i);
-        }
-        return idx;
-}
-
-double Tensor::mag(std::vector<size_t> idx) {
-        return std::abs(get(idx));
-}
-
-double Tensor::mag(int pos) {
-        return std::abs(get(pos));
-}
-
-
-void Tensor::printDimSize() {
-        std::cout << "DimSize: [ ";
-        for (size_t i = 0; i < dimension; i++) {
-                std::cout << DimSize.at(i) << " ";
-        }
-        std::cout << "]" << '\n';
-}
 
 // #################################################################
 // ################### HANDLING OF DISTRIBUTIONS ###################
 // #################################################################
+
+// do I still use this function ??????????? NOPE
+size_t Tensor::distNbr(std::vector<size_t> samplingIdx) {
+        size_t nbr = 0;
+        for (size_t i = 0; i < dimension; i++) {
+                nbr += samplingIdx.at(i)*w_samplingIdx.at(i);
+        }
+        nbr -= 1;
+        return nbr;
+}
 
 size_t Tensor::compDistPos(size_t dist, std::vector<size_t> idx) {
         size_t pos = 0;
@@ -301,12 +109,7 @@ void Tensor::genCompDist() {
 }
 
 void Tensor::getISampIndexComp(size_t dist, std::vector<size_t> *idx) {
-        // std::cout << "---->" << '\n';
-        // std::bitset<3> x(dist);
-        // std::cout << x << '\n';
-        // dist--;
-
-
+        std::cout << "---->" << '\n';
         double rand_uniform = Gen::uni_real_Dist(Gen::generator);
         int upper = compDist.at(dist).at(compDistPos(dist, *idx)).size()-1;
         int lower = -1;
@@ -319,37 +122,43 @@ void Tensor::getISampIndexComp(size_t dist, std::vector<size_t> *idx) {
                         lower = mid;
                 }
         }
-        // std::cout << compDist.at(dist).size() << "  " << compDistPos(dist, *idx) << '\n';
-        // std::cout << "sampleNbr: " << upper << " of " << compDist.at(dist).at(compDistPos(dist, *idx)).size()<< '\n';
+
+        std::bitset<3> x(dist);
+        std::cout << x << '\n';
+
 
         // reverse from upper to idx
         dist++;
-        // x = dist;
-        // std::cout << x << '\n';
         int shift = 1;
         for (size_t j = 0; j < dimension; j++) {
-                if ( (dist & (0b1 << j)) != 0b0 ) {
-                        shift *= DimSize.at(j);
+                if ( (dist & (0b1 << j)) != 0 ) {
+                        shift *= DimSize.at(idx->size()-1-j);
                 }
         }
 
-        // x = dist;
-        // std::cout << x << '\n';
-        // std::cout << "upper: " << upper << '\n';
-        // std::cout << "shift: " << shift << '\n';
+        std::cout << "upper: " << upper << '\n';
+        std::cout << "shift: " << shift << '\n';
         for (size_t j = dimension-1; j < dimension; j--) {
-                // std::cout << "j: " << j << "  " << dist << " & " << (0b1 << j) << " = " << (dist & (0b1 << j));
+                std::cout << "j: " << j << "  " << dist << " & " << (0b1 << j) << " = " << (dist & (0b1 << j));
                 if ( (dist & (0b1 << j)) != 0 ) {
                         shift /= DimSize.at(j);
-                        // std::cout << "   " << upper << " % " << shift << " -> ";
-                        // std::cout << (upper - upper%shift)/shift;
+                        // std::cout << "<----- \n";
+                        std::cout << "   " << upper << " % " << shift << " -> " << (upper - upper%shift)/shift;
                         idx->at(j) = (upper - upper%shift)/shift;
-                        upper -= shift*idx->at(j);
                 }
-                // std::cout << '\n';
+                std::cout << '\n';
         }
 
-        // std::cout << "<----" << '\n';
+        // int shift = 1;
+        // int pos = 0;
+        // for (size_t j = 0; j < dimension; j++) {
+        //         if ( ((dist+0b1) & (0b1 << j)) != 0 ) {
+        //                 pos += idx.at(j)*shift;
+        //                 shift *= DimSize.at(j);
+        //         }
+        // }
+        // return idx;
+        std::cout << "<----" << '\n';
         return;
 }
 
