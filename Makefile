@@ -29,4 +29,4 @@ empty: empty.cpp $(h_all) $(cpp_all)
 
 
 clear:
-	rm *.o $(gen_files) ./class/*.o *.out
+	rm *.o $(gen_files) ./class/*.o *.out ./*.o

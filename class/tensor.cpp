@@ -2,12 +2,17 @@
 #include "./tensor.h"
 
 
-void printVector(std::vector<auto> v) {
+void printVector(std::vector<auto> v, std::string = "");
+
+void printVector(std::vector<auto> v, std::string s) {
+        if (s != "") {
+                std::cout << s << ":  ";
+        }
         std::cout << "{ ";
         for (size_t i = 0; i < v.size(); i++) {
                 std::cout << v.at(i) << ' ';
         }
-        std::cout << "}";
+        std::cout << "}\n";
 }
 
 // ################################################################
@@ -437,11 +442,12 @@ void Tensor::genTraceDist() {
 
 void Tensor::getISampIndexTrace(size_t sampleID, size_t sumID, std::vector<size_t> *idx) {
         double rand_uniform = Gen::uni_real_Dist(Gen::generator);
-        int upper = DimSize.at(sampleID);
+        int upper = DimSize.at(sampleID)-1;
         int lower = -1;
+        int true_sumID = (sumID > sampleID ? sumID-1 : sumID);
         while (upper - lower > 1) {
                 int mid = (upper+lower)/2;
-                if (rand_uniform < traceDist.at(sampleID).at(sumID).at(traceDistPos(~(0b1 << sampleID & 0b1 << sumID), *idx)).at(mid)) {
+                if (rand_uniform < traceDist.at(sampleID).at(true_sumID).at(traceDistPos(~(0b1 << sampleID & 0b1 << sumID), *idx)).at(mid)) {
                         upper = mid;
                 } else {
                         lower = mid;
@@ -452,9 +458,10 @@ void Tensor::getISampIndexTrace(size_t sampleID, size_t sumID, std::vector<size_
 }
 
 double Tensor::getISampProbTrace(size_t sampleID, size_t sumID, std::vector<size_t> idx) {
-        double prob = traceDist.at(sampleID).at(sumID).at(traceDistPos(~(0b1 << sampleID & 0b1 << sumID), idx)).at(idx.at(sampleID));
+        int true_sumID = (sumID > sampleID ? sumID-1 : sumID);
+        double prob = traceDist.at(sampleID).at(true_sumID).at(traceDistPos(~(0b1 << sampleID & 0b1 << sumID), idx)).at(idx.at(sampleID));
         if (idx.at(sampleID) > 0) {
-                prob -= traceDist.at(sampleID).at(sumID).at(traceDistPos(~(0b1 << sampleID & 0b1 << sumID), idx)).at(idx.at(sampleID)-1);
+                prob -= traceDist.at(sampleID).at(true_sumID).at(traceDistPos(~(0b1 << sampleID & 0b1 << sumID), idx)).at(idx.at(sampleID)-1);
         }
         return prob;
 }

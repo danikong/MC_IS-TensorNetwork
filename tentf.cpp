@@ -71,10 +71,10 @@ int main() {
         // }
 
 
-        // std::string filename = "./TenNet/test1";
-        //
-        // Tensor t1("C1", filename, 3, false);
-        // t1.printDimSize();
+        std::string filename = "./TenNet/test1";
+
+        Tensor t1("C1", filename, 3, false);
+        t1.printDimSize();
         // std::cout << "\n" << '\n';
         // std::vector<size_t> v = {0, 1, 3};
         // printV(v);
@@ -139,64 +139,73 @@ int main() {
         // std::cout << '\n';
         // std::cout << '\n';
         //
-        // std::cout << "############################"<< '\n';
-        // std::cout << "### looking at traceDist ###"<< '\n';
-        // std::cout << "############################"<< '\n';
-        //
-        // std::cout << "traceDist:" << '\n';
-        // std::cout << t1.traceDist.size() << '\n';
-        // for (size_t i = 0; i < t1.traceDist.size(); i++) {
-        //         std::cout << "  " << t1.traceDist.at(i).size() << '\n';
-        //         std::cout << "   ";
-        //         for (size_t j = 0; j < t1.traceDist.at(i).size(); j++) {
-        //                 std::cout << t1.traceDist.at(i).at(j).size() << "-";
-        //         }
-        //         std::cout << '\n';
-        // }
+        std::cout << "############################"<< '\n';
+        std::cout << "### looking at traceDist ###"<< '\n';
+        std::cout << "############################"<< '\n';
 
-
-        std::cout << "###################################"<< '\n';
-        std::cout << "### Testing weight calculation ###"<< '\n';
-        std::cout << "##################################"<< '\n';
-
-
-        std::vector< std::vector<size_t> > net =  { {1, 2, 3, 0, 0, 0},    // 0  C(g,a,i)
-                                                    {1, 0, 0, 0, 2, 3},    // 1  CONJG( C(g,b,j) )
-                                                    {0, 0, 0, 1, 2, 3},    // 2  C(f,b,j)
-                                                    {0, 2, 3, 1, 0, 0} };  // 3  CONJG( C(f,a,i))
-        std::vector<Tensor> Tlist;
-        std::string filename = "./TenNet/test1";
-        Tlist.push_back(Tensor("C1", filename, 3, false));
-        Tlist.push_back(Tensor("C2", filename, 3, true));
-        Tlist.push_back(Tensor("C3", filename, 3, false));
-        Tlist.push_back(Tensor("C4", filename, 3, true));
-
-        // std::vector<size_t> idxWhole = { 0, 1, 1, 4, 3, 3};
-        std::vector<size_t> idxWhole = {1, 1, 2, 5, 3, 0};
-        std::vector<size_t > idxtemp(3, 0);
-        std::vector<std::vector<size_t> > idx;
-        idx.resize(net.size());
-        for (size_t i = 0; i < net.size(); i++) {
-                idx.at(i).resize(Tlist.at(i).dimension);
-        }
-        size_t dist = 0b0;
-
-        for (size_t t = 0; t < net.size(); t++) {
-                for (size_t i = 0; i < net.at(t).size(); i++) {
-                        if (net.at(t).at(i) != 0) {
-                                idx.at(t).at(net.at(t).at(i)-1) = idxWhole.at(i);
+        std::cout << "traceDist:" << '\n';
+        std::cout << t1.traceDist.size() << '\n';
+        for (size_t i = 0; i < t1.traceDist.size(); i++) {
+                std::cout << "  " << t1.traceDist.at(i).size() << '\n';
+                for (size_t j = 0; j < t1.traceDist.at(i).size(); j++) {
+                        std::cout << "   ";
+                        std::cout << t1.traceDist.at(i).at(j).size() << "\n";
+                        std::cout << "    ";
+                        for (size_t f = 0; f < t1.traceDist.at(i).at(j).size(); f++) {
+                                std::cout << t1.traceDist.at(i).at(j).at(f).size() << "-";
                         }
+                        std::cout << '\n';
                 }
-                printVector(idx.at(t), std::to_string(t));
         }
 
-        std::vector<double> weight(Tlist.size(), 1);
-        std::complex<double> entry = 0;
-        printVector(weight, "Weight");
-        weight.at(0) *= Tlist.at(0).DimSize.at(0);
-        weight.at(0) *= Tlist.at(0).getISampProbComp(dist, idx.at(0));
-        weight.at(2) *= Tlist.at(2).DimSize.at(0);
-        weight.at(2) *= Tlist.at(2).getISampProbComp(dist, idx.at(2));
-        printVector(weight, "Weight");
+        for (size_t i = 0; i < t1.traceDist.at(1).at(1).at(0).size(); i++) {
+                std::cout << i << ": " << t1.traceDist.at(1).at(1).at(0).at(i) << '\n';
+        }
+
+
+
+        // std::cout << "###################################"<< '\n';
+        // std::cout << "### Testing weight calculation ###"<< '\n';
+        // std::cout << "##################################"<< '\n';
+        //
+        //
+        // std::vector< std::vector<size_t> > net =  { {1, 2, 3, 0, 0, 0},    // 0  C(g,a,i)
+        //                                             {1, 0, 0, 0, 2, 3},    // 1  CONJG( C(g,b,j) )
+        //                                             {0, 0, 0, 1, 2, 3},    // 2  C(f,b,j)
+        //                                             {0, 2, 3, 1, 0, 0} };  // 3  CONJG( C(f,a,i))
+        // std::vector<Tensor> Tlist;
+        // std::string filename = "./TenNet/test1";
+        // Tlist.push_back(Tensor("C1", filename, 3, false));
+        // Tlist.push_back(Tensor("C2", filename, 3, true));
+        // Tlist.push_back(Tensor("C3", filename, 3, false));
+        // Tlist.push_back(Tensor("C4", filename, 3, true));
+        //
+        // // std::vector<size_t> idxWhole = { 0, 1, 1, 4, 3, 3};
+        // std::vector<size_t> idxWhole = {1, 1, 2, 5, 3, 0};
+        // std::vector<size_t > idxtemp(3, 0);
+        // std::vector<std::vector<size_t> > idx;
+        // idx.resize(net.size());
+        // for (size_t i = 0; i < net.size(); i++) {
+        //         idx.at(i).resize(Tlist.at(i).dimension);
+        // }
+        // size_t dist = 0b0;
+        //
+        // for (size_t t = 0; t < net.size(); t++) {
+        //         for (size_t i = 0; i < net.at(t).size(); i++) {
+        //                 if (net.at(t).at(i) != 0) {
+        //                         idx.at(t).at(net.at(t).at(i)-1) = idxWhole.at(i);
+        //                 }
+        //         }
+        //         printVector(idx.at(t), std::to_string(t));
+        // }
+        //
+        // std::vector<double> weight(Tlist.size(), 1);
+        // std::complex<double> entry = 0;
+        // printVector(weight, "Weight");
+        // weight.at(0) *= Tlist.at(0).DimSize.at(0);
+        // weight.at(0) *= Tlist.at(0).getISampProbComp(dist, idx.at(0));
+        // weight.at(2) *= Tlist.at(2).DimSize.at(0);
+        // weight.at(2) *= Tlist.at(2).getISampProbComp(dist, idx.at(2));
+        // printVector(weight, "Weight");
 
 }

@@ -28,7 +28,6 @@ void printVector(std::vector<auto> v, std::string s) {
 void printMatrix(std::vector<auto> v) {
         for (size_t i = 0; i < v.size(); i++) {
                 printVector(v.at(i));
-                std::cout << '\n';
         }
         std::cout << '\n';
 }
@@ -94,7 +93,7 @@ int main() {
         // ### 4 ###
         std::vector<size_t> drawingOrder = {0, 1, 2, 4, 3, 5};
         std::vector<size_t> fromWhichTensor = {0, 0, 0, 2, 2, 2};
-        std::vector<char> drawingType = {'u', 'u', 't', 't', 'u', 'u'};
+        std::vector<char> drawingType = {'u', 'u', 'u', 't', 'u', 'u'};
         std::vector<size_t> tracingID = {0, 0, 0, 5, 0, 0};
 
         printVector(drawingOrder, "drawingOrder   ");

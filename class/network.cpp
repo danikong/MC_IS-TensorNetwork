@@ -1,11 +1,16 @@
 #include "./network.h"
 
-void printVector(std::vector<auto> v) {
+void printVector(std::vector<auto> v, std::string = "");
+
+void printVector(std::vector<auto> v, std::string s) {
+        if (s != "") {
+                std::cout << s << ":  ";
+        }
         std::cout << "{ ";
         for (size_t i = 0; i < v.size(); i++) {
                 std::cout << v.at(i) << ' ';
         }
-        std::cout << "}";
+        std::cout << "}\n";
 }
 
 TensorNet::TensorNet() {
@@ -155,18 +160,15 @@ std::complex<double> TensorNet::sampleTNet(std::vector<size_t> drawingOrder, std
                         }
 
                         // printVector(idxTen);
-                        // std::cout << '\n';
 
                         tensors.at(sampleTID).getISampIndexTrace(sampleID, sumID, &idxTen);
 
                         // printVector(idxTen);
-                        // std::cout << '\n';
 
                         idx.at(sampleIDnext.at(0)) = idxTen.at(sampleID);
                         weight.at(sampleTID) *= tensors.at(sampleTID).getISampProbTrace(sampleID, sumID, idxTen);
 
                         // printVector(idx);
-                        // std::cout << '\n';
                         // printVector(weight);
                         // std::cout << '\n';
                         // std::cout << sampleTID << ", " << sampleID << ", " << sampleIDnext.at(0) << '\n';
