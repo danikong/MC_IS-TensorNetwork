@@ -71,10 +71,10 @@ int main() {
         // }
 
 
-        std::string filename = "./TenNet/test1";
-
-        Tensor t1("C1", filename, 3, false);
-        t1.printDimSize();
+        // std::string filename = "./TenNet/test1";
+        //
+        // Tensor t1("C1", filename, 3, false);
+        // t1.printDimSize();
         // std::cout << "\n" << '\n';
         // std::vector<size_t> v = {0, 1, 3};
         // printV(v);
@@ -147,21 +147,12 @@ int main() {
         std::cout << t1.traceDist.size() << '\n';
         for (size_t i = 0; i < t1.traceDist.size(); i++) {
                 std::cout << "  " << t1.traceDist.at(i).size() << '\n';
+                std::cout << "   ";
                 for (size_t j = 0; j < t1.traceDist.at(i).size(); j++) {
-                        std::cout << "   ";
-                        std::cout << t1.traceDist.at(i).at(j).size() << "\n";
-                        std::cout << "    ";
-                        for (size_t f = 0; f < t1.traceDist.at(i).at(j).size(); f++) {
-                                std::cout << t1.traceDist.at(i).at(j).at(f).size() << "-";
-                        }
-                        std::cout << '\n';
+                        std::cout << t1.traceDist.at(i).at(j).size() << "-";
                 }
+                std::cout << '\n';
         }
-
-        for (size_t i = 0; i < t1.traceDist.at(1).at(1).at(0).size(); i++) {
-                std::cout << i << ": " << t1.traceDist.at(1).at(1).at(0).at(i) << '\n';
-        }
-
 
 
         // std::cout << "###################################"<< '\n';

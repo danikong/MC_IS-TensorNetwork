@@ -27,6 +27,9 @@ nettf: nettf.cpp $(h_all) $(cpp_all)
 empty: empty.cpp $(h_all) $(cpp_all)
 	make -f Makefile.empty
 
+simple: calcTNetVal_simple.cpp $(h_all) $(cpp_all)
+	make -f Makefile.calcTNetVal_simple
+
 
 clear:
 	rm *.o $(gen_files) ./class/*.o *.out ./*.o

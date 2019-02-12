@@ -1,5 +1,5 @@
 CC = g++
-flg = -Wall -Wextra -g #-std=gnu++11 # -Ofast -march=native
+flg = -Wall -Wextra -g -Ofast -std=gnu++17 #-march=native
 
 class_dir = class/
 mainfile = nettf
