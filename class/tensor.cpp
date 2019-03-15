@@ -544,10 +544,14 @@ void Tensor::getISampIndexAllTrace(size_t sampleID, std::vector<size_t> *idx) {
 }
 
 double Tensor::getISampProbAllTrace(size_t sampleID, std::vector<size_t> idx) {
+        std::cout << "sampleID: " << sampleID << "   ";
+        printVector(idx);
+        std::cout << allTraceDist.at(sampleID).at(idx.at(sampleID)) << '\n';
         double prob = allTraceDist.at(sampleID).at(idx.at(sampleID));
         if (idx.at(sampleID) > 0) {
-                prob -= allTraceDist.at(sampleID).at(idx.at(sampleID));
+                prob -= allTraceDist.at(sampleID).at(idx.at(sampleID)-1);
         }
+        std::cout << "prob: " << prob << '\n';
         return prob;
 }
 

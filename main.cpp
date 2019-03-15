@@ -120,7 +120,7 @@ int main() {
         printVector(tracingID, "tracingID      ");
 
         std::size_t nbrOfSamples = 2;
-        nbrOfSamples = 534l*534l*64l*64l;
+        // nbrOfSamples = 534l*534l*64l*64l;
         std::cout << "nbrOfSamples = " << nbrOfSamples << '\n';
         int howManyOut = 100;
         int divider = nbrOfSamples/howManyOut;
@@ -128,11 +128,11 @@ int main() {
                 std::complex<double> temp = Tnet.sampleTNet(drawingOrder, fromWhichTensor, drawingType, tracingID);
                 stat.addOpt(temp);
 
-                if ( ((i+1) % (divider) == 0 && i != 0) || i == 1 ) {
-                        std::cout << (static_cast<int> ((i+1) / (divider))*(100/howManyOut)) << "%: ";
-                        stat.mean_varOpt();
-                        stat.var_of_varOpt();
-                }
+                // if ( ((i+1) % (divider) == 0 && i != 0) || i == 1 ) {
+                //         std::cout << (static_cast<int> ((i+1) / (divider))*(100/howManyOut)) << "%: ";
+                //         stat.mean_varOpt();
+                //         stat.var_of_varOpt();
+                // }
         }
 
         /*

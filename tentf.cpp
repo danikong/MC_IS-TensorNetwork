@@ -72,6 +72,7 @@ int main() {
 
 
         std::string filename = "./MC_PA_Bartolot/Input_files/test/test1";
+        filename = "./MC_PA_Bartolot/Input_files/small/FTODDUMP_MC";
 
         Tensor t1("C1", filename, 3, false);
         t1.printDimSize();
@@ -213,9 +214,10 @@ int main() {
         }
         std::cout << '\n';
 
-        int dist = 0;
-        for (size_t i = 0; i < t1.allTraceDist.at(dist).size(); i++) {
-                std::cout << "   " << i << ": " << t1.allTraceDist.at(dist).at(i) << '\n';
+        int dist = 1;
+        std::cout << "   " << 0 << ": " << t1.allTraceDist.at(dist).at(0) << "    " << t1.allTraceDist.at(dist).at(0) << '\n';
+        for (size_t i = 1; i < t1.allTraceDist.at(dist).size(); i++) {
+                std::cout << "   " << i << ": " << t1.allTraceDist.at(dist).at(i) << "    " << t1.allTraceDist.at(dist).at(i) - t1.allTraceDist.at(dist).at(i-1) << '\n';
         }
 
 }
