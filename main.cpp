@@ -42,7 +42,7 @@ int main() {
         // filename = "./TenNet/test-4x2x2";
         // filename = "./TenNet/test-16x6x8";
         filename = "./MC_PA_Bartolot/Input_files/large/FTODDUMP_MC";
-        // filename = "./MC_PA_Bartolot/Input_files/small/FTODDUMP_MC";
+        filename = "./MC_PA_Bartolot/Input_files/small/FTODDUMP_MC";
         Tlist.push_back(Tensor("C1", filename, 3, false));
         Tlist.push_back(Tensor("C2", filename, 3, true));
         Tlist.push_back(Tensor("C3", filename, 3, false));
@@ -66,10 +66,10 @@ int main() {
         // std::vector<size_t> tracingID = {0, 0, 0, 4, 0, 0};  // {0, 0, 0, 5, 0, 0} could also be used
 
         // ### 1 ###
-        std::vector<size_t> drawingOrder = {0, 1, 2, 3, 4, 5};
-        std::vector<size_t> fromWhichTensor = {0, 0, 0, 2, 2, 2};
-        std::vector<char> drawingType = {'u', 'u', 'u', 'u', 'u', 'u'};
-        std::vector<size_t> tracingID = {0, 0, 0, 4, 0, 0};  // {0, 0, 0, 5, 0, 0} could also be used
+        // std::vector<size_t> drawingOrder = {0, 1, 2, 3, 4, 5};
+        // std::vector<size_t> fromWhichTensor = {0, 0, 0, 2, 2, 2};
+        // std::vector<char> drawingType = {'u', 'u', 'u', 'u', 'u', 'u'};
+        // std::vector<size_t> tracingID = {0, 0, 0, 4, 0, 0};  // {0, 0, 0, 5, 0, 0} could also be used
 
         // ### 2 ###
         // std::vector<size_t> drawingOrder = {2, 0, 1, 5, 3, 4};
@@ -90,21 +90,39 @@ int main() {
         // std::vector<size_t> tracingID = {0, 0, 0, 5, 0, 0};
 
         // ### 5 ###
-        // std::vector<size_t> drawingOrder = {2, 0, 1, 4, 3, 3};
-        // std::vector<size_t> fromWhichTensor = {0, 0, 3, 2, 1, 1};
+        // std::vector<size_t> drawingOrder =     {2, 0, 1, 4, 3, 3};
+        // std::vector<size_t> fromWhichTensor =  {0, 0, 3, 2, 1, 1};
         // std::vector<char> drawingType = {'c', 'u', 't', 'c', 'c', 'c'};
-        // std::vector<size_t> tracingID = {0, 0, 3, 0, 0, 0};
+        // std::vector<size_t> tracingID =        {0, 0, 3, 0, 0, 0};
 
+        // ### 6 ###
+        // std::vector<size_t> drawingOrder =    { 2,   1,   0,   4,   3,   3 };
+        // std::vector<size_t> fromWhichTensor = { 0,   3,   0,   2,   1,   1 };
+        // std::vector<char> drawingType =       {'t', 't', 'u', 'c', 'c', 'c'};
+        // std::vector<size_t> tracingID =       { 2,   3,   0,   0,   0,   0 };
+
+        // ### 7 ###
+        // std::vector<size_t> drawingOrder =    { 2,   1,   0,   4,   3,   5 };
+        // std::vector<size_t> fromWhichTensor = { 0,   3,   0,   2,   1,   1 };
+        // std::vector<char> drawingType =       {'T', 'T', 'T', 'T', 'T', 'T'};
+        // std::vector<size_t> tracingID =       { 0,   0,   0,   0,   0,   0 };
+
+
+        // ### 8 ###
+        std::vector<size_t> drawingOrder =    { 2,   1,   0,   4,   3,   3 };
+        std::vector<size_t> fromWhichTensor = { 0,   3,   0,   2,   1,   1 };
+        std::vector<char> drawingType =       {'t', 't', 'T', 'c', 'c', 'c'};
+        std::vector<size_t> tracingID =       { 2,   3,   0,   0,   0,   0 };
 
         printVector(drawingOrder, "drawingOrder   ");
         printVector(fromWhichTensor, "fromWhichTensor");
         printVector(drawingType, "drawingType    ");
         printVector(tracingID, "tracingID      ");
 
-        std::size_t nbrOfSamples = 0;
+        std::size_t nbrOfSamples = 2;
         nbrOfSamples = 534l*534l*64l*64l;
         std::cout << "nbrOfSamples = " << nbrOfSamples << '\n';
-        int howManyOut = 50;
+        int howManyOut = 100;
         int divider = nbrOfSamples/howManyOut;
         for (size_t i = 0; i < nbrOfSamples; i++) {
                 std::complex<double> temp = Tnet.sampleTNet(drawingOrder, fromWhichTensor, drawingType, tracingID);
@@ -117,8 +135,10 @@ int main() {
                 }
         }
 
-        // if (Tnet.maxi > 1000000000) {
-        //         Tnet.calcVal();
-        // }
+        /*
+              if (Tnet.maxi > 1000000000) {
+                      Tnet.calcVal();
+              }
+         */
         return 0;
 }

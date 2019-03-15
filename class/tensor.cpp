@@ -107,6 +107,12 @@ void Tensor::setDimProbaties(int dim, std::vector<size_t> DSize) {
                         }
                 }
         }
+
+        // setting size for double trace distributions
+        allTraceDist.resize(dimension);
+        for (size_t i = 0; i < traceDist.size(); i++) {
+                allTraceDist.at(i).resize(DimSize.at(i));
+        }
 }
 
 void Tensor::setDimension(int dim) {
@@ -174,6 +180,7 @@ void Tensor::file2tensor(std::string fn, size_t dim) {
 
         genCompDist();
         genTraceDist();
+        genAllTraceDist();
 }
 
 void Tensor::set(std::vector<size_t> idx, std::complex<double> val) {
@@ -396,6 +403,14 @@ void Tensor::posTraceDist(size_t dist, size_t id, std::vector<size_t> *idx) {
         return;
 }
 
+
+/*
+ * Function:  genTraceDist
+ * --------------------
+ * generates distributions by tracing over one indices
+ *
+ *  returns:
+ */
 void Tensor::genTraceDist() {
         std::vector<size_t> idx(dimension, 0);
         std::fill(idx.begin(), idx.end(), 0);
@@ -440,6 +455,51 @@ void Tensor::genTraceDist() {
         }
 }
 
+
+/*
+ * Function:  genAllTraceDist
+ * --------------------
+ * generates distributions by tracing over all indices except one
+ *
+ *  returns:
+ */
+void Tensor::genAllTraceDist() {
+        std::vector<size_t> idx(dimension, 0);
+        std::fill(idx.begin(), idx.end(), 0);
+
+        for (size_t i = 0; i < allTraceDist.size(); i++) {
+                for (size_t j = 0; j < allTraceDist.at(i).size(); j++) {
+                        idx.at(i) = j;
+                        for (size_t k = 0; k < nbrEntries/DimSize.at(i); k++) {
+                                size_t shift = nbrEntries/DimSize.at(i);
+                                size_t id = k;
+                                for (size_t l = 0; l < dimension; l++) {
+                                        if (l == i) continue;
+                                        shift /= DimSize.at(l);
+                                        idx.at(l) = (id-id%shift)/shift;
+                                        id = id % shift;
+                                }
+                                allTraceDist.at(i).at(j) += mag(idx);
+                        }
+                }
+        }
+
+
+        // cumulativ
+        for (size_t i = 0; i < allTraceDist.size(); i++) {
+                for (size_t j = 1; j < allTraceDist.at(i).size(); j++) {
+                        allTraceDist.at(i).at(j) += allTraceDist.at(i).at(j-1);
+                }
+        }
+
+        // normalization of distribution
+        for (size_t i = 0; i < allTraceDist.size(); i++) {
+                for (size_t j = 0; j < allTraceDist.at(i).size(); j++) {
+                        allTraceDist.at(i).at(j) /= allTraceDist.at(i).back();
+                }
+        }
+}
+
 void Tensor::getISampIndexTrace(size_t sampleID, size_t sumID, std::vector<size_t> *idx) {
         double rand_uniform = Gen::uni_real_Dist(Gen::generator);
         int upper = DimSize.at(sampleID)-1;
@@ -466,6 +526,30 @@ double Tensor::getISampProbTrace(size_t sampleID, size_t sumID, std::vector<size
         return prob;
 }
 
+
+void Tensor::getISampIndexAllTrace(size_t sampleID, std::vector<size_t> *idx) {
+        double rand_uniform = Gen::uni_real_Dist(Gen::generator);
+        size_t upper = DimSize.at(sampleID)-1;
+        size_t lower = -1;
+        while (upper - lower > 1) {
+                int mid = (upper+lower)/2;
+                if (rand_uniform < allTraceDist.at(sampleID).at(mid)) {
+                        upper = mid;
+                } else {
+                        lower = mid;
+                }
+        }
+        idx->at(sampleID) = upper;
+        return;
+}
+
+double Tensor::getISampProbAllTrace(size_t sampleID, std::vector<size_t> idx) {
+        double prob = allTraceDist.at(sampleID).at(idx.at(sampleID));
+        if (idx.at(sampleID) > 0) {
+                prob -= allTraceDist.at(sampleID).at(idx.at(sampleID));
+        }
+        return prob;
+}
 
 size_t Tensor::getUniDistIndex(size_t id) {
         return (*uniInt.at(id))(Gen::generator);

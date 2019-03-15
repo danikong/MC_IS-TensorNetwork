@@ -36,6 +36,7 @@ struct Tensor {
         std::vector<size_t> w_samplingIdx;
         std::vector< std::vector< std::vector<double> > > compDist;
         std::vector< std::vector<std::vector< std::vector<double> > > > traceDist;
+        std::vector< std::vector<double> > allTraceDist;
         std::vector<std::uniform_int_distribution<int>*> uniInt;
 
         Tensor();
@@ -76,8 +77,11 @@ struct Tensor {
         size_t traceDistPos(size_t dist, std::vector<size_t> idx);
         void posTraceDist(size_t dist, size_t id, std::vector<size_t> *idx);
         void genTraceDist();
+        void genAllTraceDist();
         void getISampIndexTrace(size_t sampleID, size_t sumID, std::vector<size_t> *idx);
         double getISampProbTrace(size_t sampleID, size_t sumID, std::vector<size_t> idx);
+        void getISampIndexAllTrace(size_t sampleID, std::vector<size_t> *idx);
+        double getISampProbAllTrace(size_t sampleID, std::vector<size_t> idx);
 
 
         size_t getUniDistIndex(size_t id);

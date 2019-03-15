@@ -71,10 +71,10 @@ int main() {
         // }
 
 
-        // std::string filename = "./TenNet/test1";
-        //
-        // Tensor t1("C1", filename, 3, false);
-        // t1.printDimSize();
+        std::string filename = "./MC_PA_Bartolot/Input_files/test/test1";
+
+        Tensor t1("C1", filename, 3, false);
+        t1.printDimSize();
         // std::cout << "\n" << '\n';
         // std::vector<size_t> v = {0, 1, 3};
         // printV(v);
@@ -139,20 +139,20 @@ int main() {
         // std::cout << '\n';
         // std::cout << '\n';
         //
-        std::cout << "############################"<< '\n';
-        std::cout << "### looking at traceDist ###"<< '\n';
-        std::cout << "############################"<< '\n';
-
-        std::cout << "traceDist:" << '\n';
-        std::cout << t1.traceDist.size() << '\n';
-        for (size_t i = 0; i < t1.traceDist.size(); i++) {
-                std::cout << "  " << t1.traceDist.at(i).size() << '\n';
-                std::cout << "   ";
-                for (size_t j = 0; j < t1.traceDist.at(i).size(); j++) {
-                        std::cout << t1.traceDist.at(i).at(j).size() << "-";
-                }
-                std::cout << '\n';
-        }
+        // std::cout << "############################"<< '\n';
+        // std::cout << "### looking at traceDist ###"<< '\n';
+        // std::cout << "############################"<< '\n';
+        //
+        // std::cout << "traceDist:" << '\n';
+        // std::cout << t1.traceDist.size() << '\n';
+        // for (size_t i = 0; i < t1.traceDist.size(); i++) {
+        //         std::cout << "  " << t1.traceDist.at(i).size() << '\n';
+        //         std::cout << "   ";
+        //         for (size_t j = 0; j < t1.traceDist.at(i).size(); j++) {
+        //                 std::cout << t1.traceDist.at(i).at(j).size() << "-";
+        //         }
+        //         std::cout << '\n';
+        // }
 
 
         // std::cout << "###################################"<< '\n';
@@ -198,5 +198,24 @@ int main() {
         // weight.at(2) *= Tlist.at(2).DimSize.at(0);
         // weight.at(2) *= Tlist.at(2).getISampProbComp(dist, idx.at(2));
         // printVector(weight, "Weight");
+
+
+
+
+        // std::cout << "############################"<< '\n';
+        // std::cout << "### looking at AlltraceDist ###"<< '\n';
+        // std::cout << "############################"<< '\n';
+        //
+        std::cout << "traceDist:" << '\n';
+        std::cout << t1.allTraceDist.size() << '\n';
+        for (size_t i = 0; i < t1.allTraceDist.size(); i++) {
+                std::cout << "  " << t1.allTraceDist.at(i).size() << '\n';
+        }
+        std::cout << '\n';
+
+        int dist = 0;
+        for (size_t i = 0; i < t1.allTraceDist.at(dist).size(); i++) {
+                std::cout << "   " << i << ": " << t1.allTraceDist.at(dist).at(i) << '\n';
+        }
 
 }

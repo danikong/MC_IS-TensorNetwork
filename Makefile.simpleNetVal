@@ -1,0 +1,27 @@
+CC = g++
+flg = -Wall -Wextra -g -Ofast -std=gnu++17 #-march=native
+
+class_dir = class/
+mainfile = simpleNetVal
+
+h_files = tensor randomGen
+cpp_files := $(h_files)
+
+dir := ./$(class_dir)
+h_all := $(join $(addsuffix $(class_dir), $(dir $(h_files))), $(h_files:=.h))
+cpp_all := $(join $(addsuffix $(class_dir), $(dir $(cpp_files))), $(cpp_files:=.cpp))
+
+output: $(mainfile).o $(cpp_all:.cpp=.o) $(h_all) $(cpp_all)
+	$(CC) $(flg) $(mainfile).o $(cpp_all:.cpp=.o) -o $(mainfile).out
+
+$(mainfile).o: $(mainfile).cpp $(cpp_all)
+	$(CC) $(flg) -c $(mainfile).cpp -o $(mainfile).o
+
+$(dir)tensor.o: $(h_all) $(cpp_all)
+	$(CC) $(flg) -c $(join $(dir), tensor.cpp) -o $(dir)tensor.o
+
+$(dir)randomGen.o: $(h_all) $(cpp_all)
+	$(CC) $(flg) -c $(join $(dir), randomGen.cpp) -o $(dir)randomGen.o
+
+clear:
+	rm *.o $(mainfile)

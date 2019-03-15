@@ -144,6 +144,32 @@ std::complex<double> TensorNet::sampleTNet(std::vector<size_t> drawingOrder, std
                         sampleTID = fromWhichTensor.at(sampleIDnext.at(0));
                         idx.at(sampleIDnext.at(0)) = tensors.at(sampleTID).getUniDistIndex(network.at(sampleTID).at(sampleIDnext.at(0))-1);
 
+                } else if (drawingType.at(sampleIDnext.at(0)) == 'c') {  // compound drawing
+                        //  assume that fromWhichTensor is the same for all idx in sampleIDnext
+                        sampleTID = fromWhichTensor.at(sampleIDnext.at(0));
+
+                        // generate number for combound distribution
+                        size_t dist = 0b0;
+                        for (size_t j = 0; j < sampleIDnext.size(); j++) {
+                                dist += (0b1 << (network.at(sampleTID).at(sampleIDnext.at(j))-1));
+                        }
+                        dist -= 0b1;
+
+                        // generate indices vector for tensor
+                        std::vector<size_t> idxTen(tensors.at(sampleTID).dimension, 0);
+                        for (size_t j = 0; j < nbrIndices; j++) {
+                                if (network.at(sampleTID).at(j) != 0) {
+                                        idxTen.at(network.at(sampleTID).at(j)-1) = idx.at(j);
+                                }
+                        }
+
+                        tensors.at(sampleTID).getISampIndexComp(dist, &idxTen);
+
+                        for (size_t j = 0; j < sampleIDnext.size(); j++) {
+                                idx.at(sampleIDnext.at(j)) = idxTen.at(network.at(sampleTID).at(sampleIDnext.at(j))-1);
+                                weight.at(sampleTID) *= tensors.at(sampleTID).DimSize.at(network.at(sampleTID).at(sampleIDnext.at(j))-1);
+                        }
+                        weight.at(sampleTID) *= tensors.at(sampleTID).getISampProbComp(dist, idxTen);
                 } else if (drawingType.at(sampleIDnext.at(0)) == 't') {  // tracing
                         //  assume that sampleIDnext.size()  == 1
                         sampleTID = fromWhichTensor.at(sampleIDnext.at(0));
@@ -176,16 +202,11 @@ std::complex<double> TensorNet::sampleTNet(std::vector<size_t> drawingOrder, std
 
                         weight.at(sampleTID) *= tensors.at(sampleTID).DimSize.at(network.at(sampleTID).at(sampleIDnext.at(0))-1);
 
-                } else if (drawingType.at(sampleIDnext.at(0)) == 'c') {  // compound drawing
-                        //  assume that fromWhichTensor is the same for all idx in sampleIDnext
+                } else if (drawingType.at(sampleIDnext.at(0)) == 'T') {  // tracing
+                        //  assume that sampleIDnext.size()  == 1
                         sampleTID = fromWhichTensor.at(sampleIDnext.at(0));
-
-                        // generate number for combound distribution
-                        size_t dist = 0b0;
-                        for (size_t j = 0; j < sampleIDnext.size(); j++) {
-                                dist += (0b1 << (network.at(sampleTID).at(sampleIDnext.at(j))-1));
-                        }
-                        dist -= 0b1;
+                        size_t sampleID = network.at(sampleTID).at(sampleIDnext.at(0))-1;
+                        // std::cout << sampleTID << ", " << sampleID << ", " << sumID << '\n';
 
                         // generate indices vector for tensor
                         std::vector<size_t> idxTen(tensors.at(sampleTID).dimension, 0);
@@ -195,13 +216,17 @@ std::complex<double> TensorNet::sampleTNet(std::vector<size_t> drawingOrder, std
                                 }
                         }
 
-                        tensors.at(sampleTID).getISampIndexComp(dist, &idxTen);
+                        // printVector(idxTen);
 
-                        for (size_t j = 0; j < sampleIDnext.size(); j++) {
-                                idx.at(sampleIDnext.at(j)) = idxTen.at(network.at(sampleTID).at(sampleIDnext.at(j))-1);
-                                weight.at(sampleTID) *= tensors.at(sampleTID).DimSize.at(network.at(sampleTID).at(sampleIDnext.at(j))-1);
-                        }
-                        weight.at(sampleTID) *= tensors.at(sampleTID).getISampProbComp(dist, idxTen);
+                        tensors.at(sampleTID).getISampIndexAllTrace(sampleID, &idxTen);
+
+                        // printVector(idxTen);
+
+                        idx.at(sampleIDnext.at(0)) = idxTen.at(sampleID);
+                        weight.at(sampleTID) *= tensors.at(sampleTID).getISampProbAllTrace(sampleID, idxTen);
+
+                        weight.at(sampleTID) *= tensors.at(sampleTID).DimSize.at(network.at(sampleTID).at(sampleIDnext.at(0))-1);
+
                 }
                 sampleIDnext.clear();
                 // printVector(idx);
